@@ -71,7 +71,7 @@
         <input v-model="newCargo.name" type="text" class="form-control" />
       </div>
 
-      <div>
+      <!-- <div>
         <label>Откуда:</label>
 
         <select v-model="newCargo.origin" class="form-select">
@@ -99,6 +99,54 @@
             {{ city.name }}
           </option>
         </select>
+      </div> -->
+
+      <div>
+        <label>Откуда:</label>
+        <div class="autocomplete">
+          <input
+            type="text"
+            v-model="newCargo.origin"
+            class="form-control"
+            placeholder="Введите город"
+            @input="filterCities('origin')"
+            @blur="hideSuggestions('origin')" />
+          <ul
+            v-if="filteredCities.origin.length && showSuggestions.origin"
+            class="suggestions">
+            <li
+              v-for="(city, index) in filteredCities.origin"
+              :key="index"
+              @click="selectCity(city.name, 'origin')">
+              {{ city.name }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <label>Куда:</label>
+        <div class="autocomplete">
+          <input
+            type="text"
+            v-model="newCargo.destination"
+            class="form-control"
+            placeholder="Введите город"
+            @input="filterCities('destination')"
+            @blur="hideSuggestions('destination')" />
+          <ul
+            v-if="
+              filteredCities.destination.length && showSuggestions.destination
+            "
+            class="suggestions">
+            <li
+              v-for="(city, index) in filteredCities.destination"
+              :key="index"
+              @click="selectCity(city.name, 'destination')">
+              {{ city.name }}
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div>
@@ -120,6 +168,14 @@ import { cities } from "@/russian-cities";
 export default {
   data() {
     return {
+      filteredCities: {
+        origin: [],
+        destination: [],
+      },
+      showSuggestions: {
+        origin: false,
+        destination: false,
+      },
       cargoList: [
         {
           id: "CARGO001",
@@ -166,6 +222,29 @@ export default {
     },
   },
   methods: {
+    filterCities(type) {
+      const inputValue = this.newCargo[type].toLowerCase();
+      if (inputValue.length === 0) {
+        this.filteredCities[type] = [];
+        this.showSuggestions[type] = false;
+        return;
+      }
+
+      this.filteredCities[type] = this.citiesNameAndSubject.filter((city) =>
+        city.name.toLowerCase().includes(inputValue)
+      );
+
+      this.showSuggestions[type] = true;
+    },
+    selectCity(cityName, type) {
+      this.newCargo[type] = cityName;
+      this.showSuggestions[type] = false;
+    },
+    hideSuggestions(type) {
+      setTimeout(() => {
+        this.showSuggestions[type] = false;
+      }, 200);
+    },
     addNewCargo() {
       if (
         this.newCargo.name === "" ||
@@ -212,5 +291,32 @@ export default {
 <style>
 .container {
   max-width: 800px;
+}
+
+.autocomplete {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestions li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions li:hover {
+  background-color: #f0f0f0;
 }
 </style>
