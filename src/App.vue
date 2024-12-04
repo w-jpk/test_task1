@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-4">
+  <div class="container-fuild mt-4 m-4">
     <h1>Отслеживание грузов</h1>
 
     <div class="row g-3 align-items-end mb-3">
